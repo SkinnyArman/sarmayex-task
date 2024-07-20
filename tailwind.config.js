@@ -17,6 +17,7 @@ export default {
         text: {
           white: "#fff",
           gray: "#838485",
+          red: "#f65454"
         },
       },
     },

@@ -1,17 +1,33 @@
 <template>
   <div class="flex justify-center bg-dark h-[100vh] text-text-gray">
-    <div class="mt-16 max-w-[600px]">
-      <table>
+    <div class="mt-16 max-w-[300px] w-full">
+      <table class="w-full table-fixed">
         <thead>
-          <th colspan="3">قیمت</th>
-          <th colspan="3">مقدار</th>
-          <th colspan="3">مجموع</th>
+          <tr>
+            <th class="w-[30%] text-right">قیمت</th>
+            <th class="w-[30%]">مقدار</th>
+            <th class="w-[40%] text-left">مجموع</th>
+          </tr>
         </thead>
-        <tbody>
+        <tbody class="w-full">
           <tr v-for="ask in asks" :key="ask.p + ask.a">
-            <td colspan="3">{{ ask.p }}</td>
-            <td colspan="3" class="text-center">{{ ask.a }}</td>
-            <td colspan="3">{{ ask.p * ask.a }}</td>
+            <td class="text-text-red">
+              {{
+                new Intl.NumberFormat("en-US", {
+                  maximumFractionDigits: 0,
+                }).format(ask.p)
+              }}
+            </td>
+            <td class="text-center text-text-white">
+              {{ ask.a }}
+            </td>
+            <td class="text-left text-text-white">
+              {{
+                new Intl.NumberFormat("en-US", {
+                  maximumFractionDigits: 0,
+                }).format(ask.p * ask.a)
+              }}
+            </td>
           </tr>
         </tbody>
       </table>
@@ -31,18 +47,20 @@ const asks = ref<OrderBookResponse>([]);
 const bids = ref<OrderBookResponse>([]);
 
 onMounted(() => {
-  let count = 0;
   const sse = new EventSource(USDT_LIVE_URL);
 
   sse.onmessage = (message) => {
-    if (count == 5) return;
     const order = JSON.parse(message.data);
     if (order.event == EventEnum.Markets) {
       return;
     }
-    asks.value = order.data.asks;
-    bids.value = order.data.bids;
-    count++;
+    asks.value = order.data.asks.slice(0, 15);
+    bids.value = order.data.bids.slice(0, 15);
+    sse.close()
   };
 });
 </script>
+
+<style scoped>
+/* Add any specific styles if necessary */
+</style>
