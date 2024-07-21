@@ -107,7 +107,13 @@ import { FilterEnum } from "./enums/filter.enum";
 import type { OrderBookResponse, Order } from "./types/api/orderBook.response";
 import { formatNumber, ordersSummation, orderTotal } from "./helpers/utils";
 
-const orders = ref<{ bids: Order[]; asks: Order[] }>({ asks: [], bids: [] });
+import { useOrderBookStore } from "./store/orderBook";
+
+const { orders, fetchInitialData, subscribeToUpdates } = useOrderBookStore();
+await fetchInitialData();
+onMounted(async() => {
+  subscribeToUpdates();
+});
 
 const filter = ref<FilterEnum | null>(null);
 const setFilter = (fil: FilterEnum | null) => {
@@ -117,17 +123,17 @@ const setFilter = (fil: FilterEnum | null) => {
 const ordersToShow = (orderType: FilterEnum) => {
   // if no filters applied, show 15 of each
   if (!filter.value) {
-    return orders.value[orderType].slice(0, 15);
+    return orders[orderType].slice(0, 15);
   }
   // if filter applied, show all the items of that filter
   if (filter.value === orderType) {
-    return orders.value[orderType];
+    return orders[orderType];
   }
   return [];
 };
 
-const totalBids = computed(() => ordersSummation(orders.value.bids));
-const totalAsks = computed(() => ordersSummation(orders.value.asks));
+const totalBids = computed(() => ordersSummation(orders.bids));
+const totalAsks = computed(() => ordersSummation(orders.asks));
 const total = computed(() => totalAsks.value + totalBids.value);
 
 const totalAsksPercentage = computed(
@@ -136,20 +142,8 @@ const totalAsksPercentage = computed(
 const totalBidsPercentage = computed(() => 100 - totalAsksPercentage.value);
 
 const highestAskAmount = computed(() => {
-  let highestOrder = orders.value.asks.sort((a, b) => b.a * b.p - a.a * a.p)[0];
+  let highestOrder = orders.asks.sort((a, b) => b.a * b.p - a.a * a.p)[0];
   return highestOrder.p * highestOrder.a;
-});
-onMounted(() => {
-  const sse = new EventSource(USDT_LIVE_URL);
-
-  sse.onmessage = (message) => {
-    const order = JSON.parse(message.data);
-    if (order.event == EventEnum.Markets) {
-      return;
-    }
-    orders.value = order.data;
-    sse.close()
-  };
 });
 </script>
 
