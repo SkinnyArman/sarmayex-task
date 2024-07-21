@@ -26,6 +26,7 @@ export default {
         },
         gray: "#838485",
         red: "#f65454",
+        main: "#fe4723",
         success: "#01bc8d",
       },
     },

@@ -46,32 +46,44 @@
         </div>
         <table class="w-full table-fixed">
           <thead>
-            <tr>
+            <tr class="py-2">
               <th class="w-[30%] text-right py-2">قیمت</th>
               <th class="w-[30%] py-2">مقدار</th>
               <th class="w-[40%] text-left py-2">مجموع</th>
             </tr>
           </thead>
-          <tbody class="w-full">
+          <tbody class="relative w-full">
             <tr
+              class="relative mb-1 my-auto align-middle"
               v-for="ask in ordersToShow(FilterEnum.Asks)"
               :key="ask.p + ask.a"
             >
-              <td class="text-red">
-                {{ formatNumber(ask.p) }}
+              <td class="text-red h-6 align-middle">
+                <span
+                  class="absolute h-full bg-red opacity-20 z-0"
+                  :style="{
+                    width: `${((ask.p * ask.a) / highestAskAmount) * 100}%`,
+                  }"
+                ></span>
+                <span class="relative z-10">{{ formatNumber(ask.p) }}</span>
               </td>
-              <td class="text-center dark:text-white-light text-white-dark">
+              <td
+                class="relative text-center dark:text-white-light text-white-dark"
+              >
                 {{ ask.a }}
               </td>
-              <td class="text-left dark:text-white-light text-white-dark">
+              <td
+                class="relative text-left dark:text-white-light text-white-dark"
+              >
                 {{ formatNumber(orderTotal(ask.a, ask.p)) }}
               </td>
             </tr>
             <tr
+              class="mb-1"
               v-for="bid in ordersToShow(FilterEnum.Bids)"
               :key="bid.p + bid.a"
             >
-              <td class="text-success">
+              <td class="text-success py-[2px]">
                 {{ formatNumber(bid.p) }}
               </td>
               <td class="text-center dark:text-white-light text-white-dark">
@@ -122,6 +134,11 @@ const totalAsksPercentage = computed(
   () => (totalAsks.value / total.value) * 100
 );
 const totalBidsPercentage = computed(() => 100 - totalAsksPercentage.value);
+
+const highestAskAmount = computed(() => {
+  let highestOrder = orders.value.asks.sort((a, b) => b.a * b.p - a.a * a.p)[0];
+  return highestOrder.p * highestOrder.a;
+});
 onMounted(() => {
   const sse = new EventSource(USDT_LIVE_URL);
 
@@ -131,6 +148,17 @@ onMounted(() => {
       return;
     }
     orders.value = order.data;
+    sse.close()
   };
 });
 </script>
+
+<style scoped>
+/* table {
+  border-collapse: separate;
+  border-spacing: 0 2px;
+} */
+/* td {
+  vertical-align: middle;
+} */
+</style>
