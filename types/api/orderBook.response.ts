@@ -7,7 +7,7 @@ export type Order = {
 
 export type OrderBook = {
   event: EventEnum;
-  data: { asks: Order[]; bids: [] };
+  data: { asks: Order[]; bids: Order[] };
 };
 
 export type OrderBookResponse = OrderBook[];
