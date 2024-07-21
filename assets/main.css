@@ -1,6 +1,12 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@font-face {
+  font-family: 'Vazir';
+  src: url("./Vazir-Regular.ttf");
+}
 * {
   direction: rtl;
+  font-family: 'Vazir';
 }
+

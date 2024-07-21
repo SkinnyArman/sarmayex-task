@@ -10,6 +10,10 @@ export default {
   ],
   theme: {
     extend: {
+      fontSize: {
+        body1: "12px",
+      },
+      fontFamily: ["Vazir"],
       backgroundColor: {
         dark: "#1b1b1b",
       },
@@ -17,7 +21,8 @@ export default {
         text: {
           white: "#fff",
           gray: "#838485",
-          red: "#f65454"
+          red: "#f65454",
+          success: "#01bc8d"
         },
       },
     },
