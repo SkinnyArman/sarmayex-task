@@ -1,80 +1,89 @@
 <template>
-  <div
-    class="flex justify-center bg-dark overflow-auto text-text-gray text-body1 py-16"
-  >
-    <div class="max-w-[300px] w-full">
-      <div class="flex justify-between">
-        <div class="flex">
-          <img
-            src="./assets/images/buy-sell.svg"
-            class="cursor-pointer w-5 h-5 ml-4"
-            @click="setFilter(null)"
-          />
-          <img
-            src="./assets/images/buy.svg"
-            class="cursor-pointer w-5 h-5 ml-4"
-            @click="setFilter(FilterEnum.Bids)"
-          />
-          <img
-            src="./assets/images/sell.svg"
-            class="cursor-pointer w-5 h-5"
-            @click="setFilter(FilterEnum.Asks)"
-          />
-        </div>
-        <div class="flex flex-col justify-center">
-          <div class="flex justify-between">
-            <span class="text-text-red"
-              >{{ Math.ceil(totalAsksPercentage) }}%</span
-            >
-            <span class="text-text-success"
-              >{{ Math.floor(totalBidsPercentage) }}%</span
-            >
+  <div>
+    <NavBar></NavBar>
+    <div
+      class="flex justify-center dark:bg-black overflow-auto text-gray bg-light text-body1 py-4"
+    >
+      <div class="max-w-[300px] w-full dark:bg-dark bg-white-light p-4 rounded">
+        <div class="flex justify-between">
+          <div class="flex">
+            <img
+              src="./assets/images/buy-sell.svg"
+              class="cursor-pointer w-5 h-5 ml-4"
+              @click="setFilter(null)"
+            />
+            <img
+              src="./assets/images/buy.svg"
+              class="cursor-pointer w-5 h-5 ml-4"
+              @click="setFilter(FilterEnum.Bids)"
+            />
+            <img
+              src="./assets/images/sell.svg"
+              class="cursor-pointer w-5 h-5"
+              @click="setFilter(FilterEnum.Asks)"
+            />
           </div>
-          <div class="flex w-[100px]">
-            <div
-              class="h-1 bg-text-red ml-1"
-              :style="{ width: totalAsksPercentage + '%' }"
-            ></div>
-            <div
-              class="h-1 bg-text-success"
-              :style="{ width: totalBidsPercentage + '%' }"
-            ></div>
+          <div class="flex flex-col justify-center">
+            <div class="flex justify-between">
+              <span class="text-red"
+                >{{ Math.ceil(totalAsksPercentage) }}%</span
+              >
+              <span class="text-success"
+                >{{ Math.floor(totalBidsPercentage) }}%</span
+              >
+            </div>
+            <div class="flex w-[100px]">
+              <div
+                class="h-1 bg-red ml-1"
+                :style="{ width: totalAsksPercentage + '%' }"
+              ></div>
+              <div
+                class="h-1 bg-success"
+                :style="{ width: totalBidsPercentage + '%' }"
+              ></div>
+            </div>
           </div>
         </div>
+        <table class="w-full table-fixed">
+          <thead>
+            <tr>
+              <th class="w-[30%] text-right py-2">قیمت</th>
+              <th class="w-[30%] py-2">مقدار</th>
+              <th class="w-[40%] text-left py-2">مجموع</th>
+            </tr>
+          </thead>
+          <tbody class="w-full">
+            <tr
+              v-for="ask in ordersToShow(FilterEnum.Asks)"
+              :key="ask.p + ask.a"
+            >
+              <td class="text-red">
+                {{ formatNumber(ask.p) }}
+              </td>
+              <td class="text-center dark:text-white-light text-white-dark">
+                {{ ask.a }}
+              </td>
+              <td class="text-left dark:text-white-light text-white-dark">
+                {{ formatNumber(orderTotal(ask.a, ask.p)) }}
+              </td>
+            </tr>
+            <tr
+              v-for="bid in ordersToShow(FilterEnum.Bids)"
+              :key="bid.p + bid.a"
+            >
+              <td class="text-success">
+                {{ formatNumber(bid.p) }}
+              </td>
+              <td class="text-center dark:text-white-light text-white-dark">
+                {{ bid.a }}
+              </td>
+              <td class="text-left dark:text-white-light text-white-dark">
+                {{ formatNumber(orderTotal(bid.a, bid.p)) }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <table class="w-full table-fixed">
-        <thead>
-          <tr>
-            <th class="w-[30%] text-right py-2">قیمت</th>
-            <th class="w-[30%] py-2">مقدار</th>
-            <th class="w-[40%] text-left py-2">مجموع</th>
-          </tr>
-        </thead>
-        <tbody class="w-full">
-          <tr v-for="ask in ordersToShow(FilterEnum.Asks)" :key="ask.p + ask.a">
-            <td class="text-text-red">
-              {{ formatNumber(ask.p) }}
-            </td>
-            <td class="text-center text-text-white">
-              {{ ask.a }}
-            </td>
-            <td class="text-left text-text-white">
-              {{ formatNumber(orderTotal(ask.a, ask.p)) }}
-            </td>
-          </tr>
-          <tr v-for="bid in ordersToShow(FilterEnum.Bids)" :key="bid.p + bid.a">
-            <td class="text-text-success">
-              {{ formatNumber(bid.p) }}
-            </td>
-            <td class="text-center text-text-white">
-              {{ bid.a }}
-            </td>
-            <td class="text-left text-text-white">
-              {{ formatNumber(orderTotal(bid.a, bid.p)) }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
   </div>
 </template>

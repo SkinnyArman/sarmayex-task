@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: "class",
   content: [
     "./components/**/*.{js,vue,ts}",
     "./layouts/**/*.vue",
@@ -16,14 +17,16 @@ export default {
       fontFamily: ["Vazir"],
       backgroundColor: {
         dark: "#1b1b1b",
+        light: "#f8f8f8"
       },
       colors: {
-        text: {
-          white: "#fff",
-          gray: "#838485",
-          red: "#f65454",
-          success: "#01bc8d"
+        white: {
+          light: "#fff",
+          dark: "#1e2329",
         },
+        gray: "#838485",
+        red: "#f65454",
+        success: "#01bc8d",
       },
     },
   },
