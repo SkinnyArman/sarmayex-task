@@ -1,6 +1,6 @@
 import { ThemeEnum } from "~/enums/theme.enum";
 export const useTheme = () => {
-  const theme = ref(ThemeEnum.Dark);
+  const theme = ref(ThemeEnum.Light);
 
   const setTheme = (newTheme: ThemeEnum) => {
     theme.value = newTheme;
@@ -19,7 +19,7 @@ export const useTheme = () => {
 
   onMounted(() => {
     const savedTheme =
-      (localStorage.getItem("theme") as ThemeEnum) || ThemeEnum.Dark;
+      (localStorage.getItem("theme") as ThemeEnum) || ThemeEnum.Light;
     setTheme(savedTheme);
   });
 

@@ -9,5 +9,3 @@ export type OrderBook = {
   event: EventEnum;
   data: { asks: Order[]; bids: Order[] };
 };
-
-export type OrderBookResponse = OrderBook[];
