@@ -61,9 +61,7 @@
               <td class="text-red h-6 align-middle">
                 <span
                   class="absolute h-full bg-red opacity-20 z-0"
-                  :style="{
-                    width: `${((ask.p * ask.a) / highestAskAmount) * 100}%`,
-                  }"
+                  :style="{ width: calculateWidth(ask, filter) + '%' }"
                 ></span>
                 <span class="relative z-10">{{ formatNumber(ask.p) }}</span>
               </td>
@@ -79,17 +77,25 @@
               </td>
             </tr>
             <tr
-              class="mb-1"
+              class="relative mb-1 my-auto align-middle"
               v-for="bid in ordersToShow(FilterEnum.Bids)"
               :key="bid.p + bid.a"
             >
-              <td class="text-success py-[2px]">
-                {{ formatNumber(bid.p) }}
+              <td class="text-success h-6 align-middle">
+                <span
+                  class="absolute h-full bg-success opacity-20 z-0"
+                  :style="{ width: calculateWidth(bid, filter) + '%' }"
+                ></span>
+                <span class="relative z-10">{{ formatNumber(bid.p) }}</span>
               </td>
-              <td class="text-center dark:text-white-light text-white-dark">
+              <td
+                class="relative text-center dark:text-white-light text-white-dark"
+              >
                 {{ bid.a }}
               </td>
-              <td class="text-left dark:text-white-light text-white-dark">
+              <td
+                class="relative text-left dark:text-white-light text-white-dark"
+              >
                 {{ formatNumber(orderTotal(bid.a, bid.p)) }}
               </td>
             </tr>
@@ -101,17 +107,20 @@
 </template>
 
 <script lang="ts" setup>
-import { ORDER_BOOK_URL, USDT_LIVE_URL } from "./constants/variables";
-import { EventEnum } from "./enums/event.enum";
 import { FilterEnum } from "./enums/filter.enum";
-import type { OrderBookResponse, Order } from "./types/api/orderBook.response";
-import { formatNumber, ordersSummation, orderTotal } from "./helpers/utils";
+import type { Order } from "./types/api/orderBook.response";
+import {
+  formatNumber,
+  ordersSummation,
+  orderTotal,
+  getHighestOrderAmount,
+} from "./helpers/utils";
 
 import { useOrderBookStore } from "./store/orderBook";
 
 const { orders, fetchInitialData, subscribeToUpdates } = useOrderBookStore();
 await fetchInitialData();
-onMounted(async() => {
+onMounted(() => {
   subscribeToUpdates();
 });
 
@@ -121,13 +130,15 @@ const setFilter = (fil: FilterEnum | null) => {
 };
 
 const ordersToShow = (orderType: FilterEnum) => {
-  // if no filters applied, show 15 of each
+  const sortedOrders = orders[orderType]
+    .slice()
+    .sort((a: Order, b: Order) => +b.p - +a.p);
+
   if (!filter.value) {
-    return orders[orderType].slice(0, 15);
+    return sortedOrders.slice(0, 15);
   }
-  // if filter applied, show all the items of that filter
   if (filter.value === orderType) {
-    return orders[orderType];
+    return sortedOrders;
   }
   return [];
 };
@@ -141,10 +152,23 @@ const totalAsksPercentage = computed(
 );
 const totalBidsPercentage = computed(() => 100 - totalAsksPercentage.value);
 
-const highestAskAmount = computed(() => {
-  let highestOrder = orders.asks.sort((a, b) => b.a * b.p - a.a * a.p)[0];
-  return highestOrder.p * highestOrder.a;
-});
+const highestAskAmount = computed(() => getHighestOrderAmount(orders.asks));
+const highestBidAmount = computed(() => getHighestOrderAmount(orders.bids));
+// the logic for this is mostly made up as i was not sure
+const calculateWidth = (order, type) => {
+  if (!filter.value) {
+    let value =
+      ((order.p * order.a) /
+        (highestAskAmount.value + highestBidAmount.value)) *
+      100;
+    return Math.min(value, 100);
+  }
+  let value =
+    ((order.p * order.a) /
+      (type === "ask" ? highestAskAmount.value : highestBidAmount.value)) *
+    100;
+  return Math.min(value, 100);
+};
 </script>
 
 <style scoped>
@@ -152,7 +176,5 @@ const highestAskAmount = computed(() => {
   border-collapse: separate;
   border-spacing: 0 2px;
 } */
-/* td {
-  vertical-align: middle;
-} */
+
 </style>
